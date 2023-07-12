@@ -1,0 +1,11 @@
+{
+	"Lua.diagnostics.globals": ["minetest", "ItemStack"],
+	"editor.formatOnSave": true,
+	"files.associations": {
+		".lua-format": "yaml"
+	},
+	"[lua]": {
+		"editor.defaultFormatter": "JohnnyMorganz.stylua"
+	},
+	"Lua.diagnostics.enable": false
+}
