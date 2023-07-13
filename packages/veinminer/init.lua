@@ -22,7 +22,6 @@ local allowedOres = {
 }
 
 local veinLimit = 5
-local minig = false
 local function mineVein(pos, oreType)
 	local totalMinedBlocks = 0
 	local visitedPositions = {}
