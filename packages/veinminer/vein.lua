@@ -51,18 +51,36 @@ local function iterateVein(startPos, oreType, maxNodes)
 	end
 end
 
-local function mineVein(pos, oreType, toolUsed)
+local function mineVein(pos, oreType, tool)
 	local itemDrops = {}
+	local digSimulation
+	do
+		-- This node is used to simulate digging the vein, it'll return the same values for all the other nodes.
+		local currentNodeDefinition =
+			minetest.registered_nodes[minetest.get_node(pos).name]
+
+		-- We specify zero for the reference wear since we're going to calculate the new wear ourselves.
+		digSimulation = minetest.get_dig_params(
+			currentNodeDefinition.groups or {},
+			tool:get_tool_capabilities(),
+			0
+		)
+	end
+
+	local totalBlocks = 0
 	for currentPosition in iterateVein(pos, oreType, 5) do
 		minetest.remove_node(currentPosition)
 
-		local droppedItems = minetest.get_node_drops(oreType, toolUsed or "")
+		local droppedItems =
+			minetest.get_node_drops(oreType, tool:get_name() or "")
 		for _, droppedItem in ipairs(droppedItems) do
 			table.insert(itemDrops, ItemStack(droppedItem))
 		end
+
+		totalBlocks = totalBlocks + 1
 	end
 
-	return itemDrops
+	return itemDrops, tool:get_wear() + digSimulation.wear * totalBlocks
 end
 
 return mineVein

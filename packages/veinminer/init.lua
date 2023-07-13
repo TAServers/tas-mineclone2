@@ -2,9 +2,12 @@ local mineVein = tas.require("vein")
 
 --- Table containing all allowed nodes to be vein-mined.
 local allowedNodes = {
-	"mcl_core:stone_with_.",
-	"mcl_core:deepslate_with_.",
-	"mcl_core:stone",
+	".",
+}
+
+--- Table containing all allowed tools to be used for vein-mining.
+local allowedTools = {
+	"mcl_tools:.",
 }
 
 local function on_ore_digged(pos, oreNode, digger)
@@ -12,7 +15,13 @@ local function on_ore_digged(pos, oreNode, digger)
 		return
 	end
 
-	local itemDrops = mineVein(pos, oreNode.name)
+	local tool = digger:get_wielded_item()
+	local toolIndex = digger:get_wield_index()
+	if not tool or not tas.validateNodeType(tool:get_name(), allowedTools) then
+		return
+	end
+
+	local itemDrops, newToolWear = mineVein(pos, oreNode.name, tool)
 	local playerInventory = digger:get_inventory()
 
 	if not playerInventory then
@@ -22,23 +31,18 @@ local function on_ore_digged(pos, oreNode, digger)
 	for _, dropStack in ipairs(itemDrops) do
 		playerInventory:add_item("main", dropStack)
 	end
+
+	tool:set_wear(newToolWear)
+	playerInventory:set_stack("main", toolIndex, tool)
 end
 
 minetest.register_on_mods_loaded(function()
 	for nodeName, nodeDefinition in pairs(minetest.registered_nodes) do
-		local validNode = false
-		for _, typePattern in ipairs(allowedNodes) do
-			if nodeName:find(typePattern) then
-				validNode = true
-				break
-			end
-		end
-
-		if validNode then
+		if tas.validateNodeType(nodeName, allowedNodes) then
 			mc2patch.patchDefinitionCallback(
 				nodeDefinition,
-				"after_dig_node",
-				function(pos, node, _, digger)
+				"on_dig",
+				function(pos, node, digger)
 					on_ore_digged(pos, node, digger)
 				end
 			)
