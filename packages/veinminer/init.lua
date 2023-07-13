@@ -14,11 +14,11 @@ do
 	end
 end
 
---- Table containing all allowed ores to be mined.
-local allowedOres = {
-	"iron",
-	"diamond",
-	"coal",
+--- Table containing all allowed nodes to be vein-mined.
+local allowedNodes = {
+	"mcl_core:stone_with_.",
+	"mcl_core:deepslate_with_.",
+	"mcl_core:stone",
 }
 
 local veinLimit = 5
@@ -38,7 +38,7 @@ local function mineVein(pos, oreType)
 
 	addPosition(pos)
 
-	while queue:size() > 0 and queue:size() < veinLimit do
+	while queue:size() > 0 and totalMinedBlocks < veinLimit do
 		local currentPosition = queue:Dequeue()
 
 		for _, neighborPosition in ipairs(neighborPositions) do
@@ -50,9 +50,8 @@ local function mineVein(pos, oreType)
 			end
 		end
 
-		if minetest.remove_node(currentPosition) then
-			totalMinedBlocks = totalMinedBlocks + 1
-		end
+		minetest.remove_node(currentPosition)
+		totalMinedBlocks = totalMinedBlocks + 1
 	end
 
 	return totalMinedBlocks
@@ -78,15 +77,15 @@ end
 
 minetest.register_on_mods_loaded(function()
 	for nodeName, nodeDefinition in pairs(minetest.registered_nodes) do
-		local validOre = false
-		for _, oreName in ipairs(allowedOres) do
-			if nodeName:find(("%s$"):format(oreName)) then
-				validOre = true
+		local validNode = false
+		for _, typePattern in ipairs(allowedNodes) do
+			if nodeName:find(typePattern) then
+				validNode = true
 				break
 			end
 		end
 
-		if nodeName:find("_with_.") and validOre then
+		if validNode then
 			mc2patch.patchDefinitionCallback(
 				nodeDefinition,
 				"after_dig_node",
