@@ -28,16 +28,3 @@ function mc2patch.patchAllNodeCallbacks(callbackName, callback)
 		mc2patch.patchDefinitionCallback(nodeDefinition, callbackName, callback)
 	end
 end
-
---- Patches a specific item callback for all registered items.
----@param callbackName string
----@param callback function
-function mc2patch.patchAllItemCallbacks(callbackName, callback)
-	for _, itemDefinition in pairs(minetest.registered_items) do
-		mc2patch.patchDefinitionCallback(itemDefinition, callbackName, callback)
-	end
-
-	for _, itemDefinition in pairs(minetest.registered_tools) do
-		mc2patch.patchDefinitionCallback(itemDefinition, callbackName, callback)
-	end
-end

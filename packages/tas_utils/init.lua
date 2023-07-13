@@ -28,5 +28,18 @@ function tas.require(name)
 	return result
 end
 
+--- Checks if a node type is valid given an array of type patterns. These can be simple explicit types or lua patterns.
+---@param nodeType string
+---@param typePatterns string[]
+function tas.validateNodeType(nodeType, typePatterns)
+	for _, typePattern in ipairs(typePatterns) do
+		if nodeType:match(typePattern) then
+			return true
+		end
+	end
+
+	return false
+end
+
 ---@module 'structures.queue'
 tas.Queue = tas.require("structures/queue")
