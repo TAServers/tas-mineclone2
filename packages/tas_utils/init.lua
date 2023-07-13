@@ -27,3 +27,5 @@ function tas.require(name)
 
 	return result
 end
+
+tas.Queue = tas.require("structures/queue")
