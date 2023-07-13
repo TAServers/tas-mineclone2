@@ -1,12 +1,18 @@
 --- Table containing all possible offsets for neighboring nodes.
-local neighborPositions = {
-	vector.new(1, 0, 0), -- 	+x
-	vector.new(-1, 0, 0), -- 	-x
-	vector.new(0, 1, 0), -- 	+y
-	vector.new(0, -1, 0), -- 	-y
-	vector.new(0, 0, 1), -- 	+z
-	vector.new(0, 0, -1), -- 	-z
-}
+local neighborPositions = {}
+do
+	local axisValues = { -1, 0, 1 }
+
+	for _, x in ipairs(axisValues) do
+		for _, y in ipairs(axisValues) do
+			for _, z in ipairs(axisValues) do
+				if x ~= 0 or y ~= 0 or z ~= 0 then
+					table.insert(neighborPositions, vector.new(x, y, z))
+				end
+			end
+		end
+	end
+end
 
 --- Table containing all allowed ores to be mined.
 local allowedOres = {
@@ -15,43 +21,42 @@ local allowedOres = {
 	"coal",
 }
 
-local blockMineLimit = 5
+local veinLimit = 5
+local minig = false
+local function mineVein(pos, oreType)
+	local totalMinedBlocks = 0
+	local visitedPositions = {}
+	local queue = tas.Queue.new()
 
---- Recursively search for and mine any neighboring nodes of the same given node.
----@param pos any
----@param node any
----@param visitedPositions? table
----@return integer minedBlocks The number of blocks mined.
-local function recursive_mine(pos, node, visitedPositions)
-	local minedBlocks = 0
-	visitedPositions = visitedPositions or {}
+	local function addPosition(newPosition)
+		if visitedPositions[newPosition] then
+			return
+		end
 
-	for _, neighborPos in ipairs(neighborPositions) do
-		local minePosition = pos + neighborPos
-		if not visitedPositions[minePosition] then
-			local neighborNode = minetest.get_node(minePosition)
-			if neighborNode.name == node.name then
-				visitedPositions[minePosition] = true
+		queue:Enqueue(newPosition)
+		visitedPositions[newPosition] = true
+	end
 
-				local mined = minetest.dig_node(pos + neighborPos)
-				if mined then
-					minedBlocks = minedBlocks + 1
-					if minedBlocks >= blockMineLimit then
-						return minedBlocks
-					end
-					minetest.debug(minedBlocks)
-					minedBlocks = minedBlocks
-						+ recursive_mine(
-							pos + neighborPos,
-							neighborNode,
-							visitedPositions
-						)
-				end
+	addPosition(pos)
+
+	while queue:size() > 0 and queue:size() < veinLimit do
+		local currentPosition = queue:Dequeue()
+
+		for _, neighborPosition in ipairs(neighborPositions) do
+			local neighborNode =
+				minetest.get_node(vector.add(currentPosition, neighborPosition))
+
+			if neighborNode.name == oreType then
+				addPosition(vector.add(currentPosition, neighborPosition))
 			end
+		end
+
+		if minetest.remove_node(currentPosition) then
+			totalMinedBlocks = totalMinedBlocks + 1
 		end
 	end
 
-	return minedBlocks
+	return totalMinedBlocks
 end
 
 local function on_ore_digged(pos, oreNode, digger)
@@ -59,7 +64,7 @@ local function on_ore_digged(pos, oreNode, digger)
 		return
 	end
 
-	local totalMinedBlocks = recursive_mine(pos, oreNode)
+	local totalMinedBlocks = mineVein(pos, oreNode.name)
 	local playerInventory = digger:get_inventory()
 
 	if not playerInventory then

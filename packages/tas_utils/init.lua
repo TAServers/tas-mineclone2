@@ -28,4 +28,5 @@ function tas.require(name)
 	return result
 end
 
+---@module 'structures.queue'
 tas.Queue = tas.require("structures/queue")
