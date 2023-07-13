@@ -8,6 +8,8 @@ This is the monorepo containing our custom mods for MineClone2.
     -   This is a mod that adds a global library to patch the Minetest definitions so that we can access the logic of MineClone2.
 -   `packages/inventory_enhancements`
     -   This is a modpack that adds some enhancements to the inventory system.
+-   `packages/tas_utils`
+    -   This is a mod which adds a function to simulate `require` so that other mods can split their code into multiple files without having to use `dofile`.
 
 # Installation
 
