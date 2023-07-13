@@ -13,7 +13,7 @@ end
 
 --- Returns the number of elements in the queue.
 ---@return integer
-function Queue:size()
+function Queue:Size()
 	return #self._data
 end
 
