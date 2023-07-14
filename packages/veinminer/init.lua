@@ -13,6 +13,12 @@ local function on_ore_digged(old_on_dig, pos, oreNode, digger)
 	end
 
 	if old_on_dig then
+		local diggerMeta = digger:get_meta()
+		if not diggerMeta then
+			-- Implictly means that Veinminer is disabled since this user has never toggled it.
+			return old_on_dig(pos, oreNode, digger)
+		end
+
 		local veinminer_enabled = digger:get_meta():get_int("veinminer_enabled")
 			== 1
 
