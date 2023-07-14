@@ -22,6 +22,7 @@ function Queue:Enqueue(value)
 end
 
 function Queue:Dequeue()
+	assert(self:Size() > 0, "Queue is empty")
 	return table.remove(self._data, 1)
 end
 
