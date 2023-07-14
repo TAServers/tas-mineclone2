@@ -7,7 +7,7 @@ local consumeableItemTypes = {
 minetest.register_on_mods_loaded(function()
 	mc2patch.patchAllNodeCallbacks(
 		"after_place_node",
-		function(_, placer, itemStack)
+		function(_, _, placer, itemStack)
 			replace_itemstack(placer, itemStack)
 		end
 	)
@@ -17,7 +17,7 @@ minetest.register_on_mods_loaded(function()
 			mc2patch.patchDefinitionCallback(
 				nodeDefinition,
 				"on_use",
-				function(itemStack, user)
+				function(_, itemStack, user)
 					replace_itemstack(user, itemStack)
 				end
 			)
