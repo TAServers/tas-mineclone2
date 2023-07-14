@@ -2,6 +2,12 @@
 
 This is the monorepo containing our custom mods for MineClone2.
 
+# 🚨 NPM WORKAROUND 🚨
+
+Due to a issue in Minetest, we're unable to use NPM packages. The `npm test` command now runs a global copy of lest so that it doesn't have to be installed as a dependency and thus create a node_modules folder.
+
+Issue: https://github.com/minetest/minetest/issues/13663
+
 # Mods
 
 -   `packages/minetest2_patcher`

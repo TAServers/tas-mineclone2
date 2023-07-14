@@ -2,9 +2,6 @@
 	"name": "tas_mineclone2",
 	"description": "This is the monorepo containing our custom mods for MineClone2.",
 	"scripts": {
-		"test": "lest"
-	},
-	"devDependencies": {
-		"@taservers/lest": "^2.0.0"
+		"test": "npx @taservers/lest"
 	}
 }
