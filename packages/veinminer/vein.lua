@@ -1,3 +1,6 @@
+---@module 'veinminer.repositories.settings'
+local veinminerSettings = tas.require("repositories/settings")
+
 --- Table containing all possible offsets for neighboring nodes.
 local neighborOffsets = {}
 do
@@ -68,7 +71,9 @@ local function mineVein(pos, oreType, tool)
 	end
 
 	local totalBlocks = 0
-	for currentPosition in iterateVein(pos, oreType, 5) do
+	for currentPosition in
+		iterateVein(pos, oreType, veinminerSettings:getMaxNodes())
+	do
 		minetest.remove_node(currentPosition)
 
 		local droppedItems =

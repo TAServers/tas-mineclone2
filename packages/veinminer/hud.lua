@@ -12,22 +12,23 @@ function VeinminerHUD.new(player)
 	hud._hudIndex = player:hud_add({
 		hud_elem_type = "text",
 		position = {
-			x = 0.5,
-			y = 0.5,
+			x = 0.95,
+			y = 0.05,
 		},
 		offset = {
 			x = 0,
 			y = 0,
 		},
 		alignment = {
-			x = 1,
-			y = 1,
+			x = -1,
+			y = -1,
 		},
 		scale = {
 			x = 100,
 			y = 100,
 		},
 		text = "",
+		style = 1,
 	})
 
 	hud = setmetatable(hud, VeinminerHUD)
@@ -42,8 +43,10 @@ function VeinminerHUD:UpdateText()
 
 	if veinminerEnabled then
 		self._player:hud_change(self._hudIndex, "text", "Veinminer: Enabled")
+		self._player:hud_change(self._hudIndex, "number", 0x00FF00)
 	else
 		self._player:hud_change(self._hudIndex, "text", "Veinminer: Disabled")
+		self._player:hud_change(self._hudIndex, "number", 0xFF0000)
 	end
 end
 

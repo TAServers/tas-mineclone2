@@ -22,7 +22,7 @@ local function on_ore_digged(pos, oreNode, digger)
 		local veinminer_enabled = digger:get_meta():get_int("veinminer_enabled")
 			== 1
 
-		if veinminer_enabled then
+		if not veinminer_enabled then
 			return old_on_dig(pos, oreNode, digger)
 		end
 	end
