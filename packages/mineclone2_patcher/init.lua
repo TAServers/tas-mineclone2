@@ -4,6 +4,7 @@ mc2patch = {}
 ---@param definition table
 ---@param callbackName string
 ---@param callback function
+---@return function|nil oldCallback The replaced callback, or nil if there was no previous callback.
 function mc2patch.patchDefinitionCallback(definition, callbackName, callback)
 	local oldCallback = definition[callbackName]
 	local delegate = function(...)
@@ -18,6 +19,7 @@ function mc2patch.patchDefinitionCallback(definition, callbackName, callback)
 	end
 
 	rawset(definition, callbackName, delegate)
+	return oldCallback
 end
 
 --- Patches a specific node callback for all registered nodes.

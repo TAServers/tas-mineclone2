@@ -1,4 +1,6 @@
+---@module 'veinminer.vein'
 local mineVein = tas.require("vein")
+tas.require("commands")
 
 --- Table containing all allowed nodes to be vein-mined.
 local allowedNodes = {
@@ -10,9 +12,19 @@ local allowedTools = {
 	"mcl_tools:.",
 }
 
+local old_on_dig
 local function on_ore_digged(pos, oreNode, digger)
 	if not digger then
 		return
+	end
+
+	if old_on_dig then
+		local veinminer_enabled = digger:get_meta():get_int("veinminer_enabled")
+			== 1
+
+		if veinminer_enabled then
+			return old_on_dig(pos, oreNode, digger)
+		end
 	end
 
 	local tool = digger:get_wielded_item()
@@ -39,12 +51,10 @@ end
 minetest.register_on_mods_loaded(function()
 	for nodeName, nodeDefinition in pairs(minetest.registered_nodes) do
 		if tas.validateNodeType(nodeName, allowedNodes) then
-			mc2patch.patchDefinitionCallback(
+			old_on_dig = mc2patch.patchDefinitionCallback(
 				nodeDefinition,
 				"on_dig",
-				function(pos, node, digger)
-					on_ore_digged(pos, node, digger)
-				end
+				on_ore_digged
 			)
 		end
 	end
