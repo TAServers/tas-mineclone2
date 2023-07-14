@@ -4,9 +4,9 @@ This is the monorepo containing our custom mods for MineClone2.
 
 # 🚨 NPM WORKAROUND 🚨
 
-Due to a issue in Minetest, we're unable to use NPM packages. The `npm test` command now runs a global copy of lest so that it doesn't have to be installed as a dependency and thus create a node_modules folder.
+Due to a issue in Minetest, we have to use a workaround to get NPM to work. An empty `init.lua` is placed in the `node_modules/` folder, but be sure to still `npm install`.
 
-Issue: https://github.com/minetest/minetest/issues/13663
+Issue: https://github.com/minetest/minetest/issues/11240#issuecomment-1636181699
 
 # Mods
 
