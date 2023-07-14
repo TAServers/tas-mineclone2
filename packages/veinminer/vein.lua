@@ -56,6 +56,7 @@ end
 
 local function mineVein(pos, oreType, tool)
 	local itemDrops = {}
+	local totalBlocks = 0
 	local digSimulation
 	do
 		-- This node is used to simulate digging the vein, it'll return the same values for all the other nodes.
@@ -70,7 +71,6 @@ local function mineVein(pos, oreType, tool)
 		)
 	end
 
-	local totalBlocks = 0
 	for currentPosition in
 		iterateVein(pos, oreType, veinminerSettings:getMaxNodes())
 	do
@@ -78,9 +78,7 @@ local function mineVein(pos, oreType, tool)
 
 		local droppedItems =
 			minetest.get_node_drops(oreType, tool:get_name() or "")
-		for _, droppedItem in ipairs(droppedItems) do
-			table.insert(itemDrops, ItemStack(droppedItem))
-		end
+		tas.array.append(itemDrops, droppedItems)
 
 		totalBlocks = totalBlocks + 1
 	end

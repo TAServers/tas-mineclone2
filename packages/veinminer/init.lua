@@ -34,9 +34,9 @@ local function on_ore_digged(old_on_dig, pos, oreNode, digger)
 		return
 	end
 
-	for _, dropStack in ipairs(itemDrops) do
-		playerInventory:add_item("main", dropStack)
-	end
+	tas.array.forEach(itemDrops, function(itemDrop)
+		minetest.add_item(pos, itemDrop)
+	end)
 
 	tool:set_wear(newToolWear)
 	playerInventory:set_stack("main", toolIndex, tool)

@@ -43,3 +43,6 @@ end
 
 ---@module 'structures.queue'
 tas.Queue = tas.require("structures/queue")
+
+---@module 'libraries.array'
+tas.array = tas.require("libraries/array")
