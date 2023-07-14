@@ -1,0 +1,7 @@
+{
+	"name": "tas_mineclone2",
+	"description": "This is the monorepo containing our custom mods for MineClone2.",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	}
+}
