@@ -22,14 +22,12 @@ local function iterateVein(startPos, nodeName, maxNodes, predicate)
 	local totalVisitedBlocks = 0
 
 	local function visit(pos)
-		visitedPositions[pos.x] = visitedPositions[pos.x] or {}
-		visitedPositions[pos.x][pos.y] = visitedPositions[pos.x][pos.y] or {}
-
-		if visitedPositions[pos.x][pos.y][pos.z] then
+		local hashedPosition = minetest.hash_node_position(pos)
+		if visitedPositions[hashedPosition] then
 			return
 		end
 
-		visitedPositions[pos.x][pos.y][pos.z] = true
+		visitedPositions[hashedPosition] = true
 
 		totalVisitedBlocks = totalVisitedBlocks + 1
 		queue:Enqueue(pos)
@@ -65,20 +63,14 @@ local function mineVein(pos, nodeType, tool)
 		0 -- Zero reference wear as we need to multiply for the number of blocks below
 	)
 
-	iterateVein(
-		pos,
-		nodeType,
-		veinminerSettings:getMaxNodes(),
-		function(foundNodePos)
-			minetest.remove_node(foundNodePos)
+	iterateVein(pos, nodeType, veinminerSettings:getMaxNodes(), function(foundNodePos)
+		minetest.remove_node(foundNodePos)
 
-			local droppedItems =
-				minetest.get_node_drops(nodeType, tool:get_name() or "")
-			tas.array.append(itemDrops, droppedItems)
+		local droppedItems = minetest.get_node_drops(nodeType, tool:get_name() or "")
+		tas.array.append(itemDrops, droppedItems)
 
-			totalBlocks = totalBlocks + 1
-		end
-	)
+		totalBlocks = totalBlocks + 1
+	end)
 
 	return itemDrops, tool:get_wear() + digSimulation.wear * totalBlocks
 end
