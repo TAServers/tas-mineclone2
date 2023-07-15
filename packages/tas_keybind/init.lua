@@ -1,11 +1,11 @@
 tas = tas or {}
-tas._oldControls = {}
+local oldPlayerControls = {}
+---@type table<tas.CONTROLS, Set<tas.ControlListenerCallback>>
+local controlListeners = {}
 
----@alias tas.KeyListenerCallback fun(player: unknown, pressed: boolean):void
+---@alias tas.ControlListenerCallback fun(player: unknown, pressed: boolean):void
 ---@alias Set<T> table<T, boolean>
 
----@type table<tas.CONTROLS, Set<tas.KeyListenerCallback>>
-tas.keyListeners = {}
 ---@enum tas.CONTROLS
 tas.CONTROLS = {
 	up = 0,
@@ -20,25 +20,28 @@ tas.CONTROLS = {
 	zoom = 9,
 }
 
-local function saveControlsForPlayer(player)
-	local playerControls = player:get_player_control_bits()
-	local oldControls = tas._oldControls[player:get_player_name()] or 0
-
-	tas._oldControls[player:get_player_name()] = playerControls
-
-	return oldControls, playerControls
+for _, control in pairs(tas.CONTROLS) do
+	controlListeners[control] = {}
 end
 
-local function callKeyListeners(player, oldControls, newControls)
-	local changedKeys = bit.bxor(newControls, oldControls)
+local function getControlChanges(playerName, newControls)
+	local oldControls = oldPlayerControls[playerName] or 0
+	oldPlayerControls[playerName] = newControls
+
+	return bit.bxor(newControls, oldControls)
+end
+
+local function callControlListeners(player)
+	local newControls = player:get_player_control_bits()
+	local changedControls = getControlChanges(player:get_player_name(), newControls)
 
 	for controlName, controlBitIndex in pairs(tas.CONTROLS) do
 		local controlBitmask = bit.rshift(1, controlBitIndex)
-		local changed = bit.band(changedKeys, controlBitmask) ~= 0
+		local changed = bit.band(changedControls, controlBitmask) ~= 0
 		local pressed = bit.band(newControls, controlBitmask) ~= 0
 
 		if changed then
-			local listeners = tas.keyListeners[controlBitIndex]
+			local listeners = controlListeners[controlBitIndex]
 			if listeners then
 				for callback in pairs(listeners) do
 					callback(player, pressed)
@@ -49,31 +52,21 @@ local function callKeyListeners(player, oldControls, newControls)
 end
 
 minetest.register_globalstep(function()
-	for _, player in ipairs(minetest.get_connected_players()) do
-		local oldControls, newControls = saveControlsForPlayer(player)
-		callKeyListeners(player, oldControls, newControls)
-	end
+	tas.array.forEach(minetest.get_connected_players(), callControlListeners)
 end)
 
---- Registers a key listener for a control.
+--- Registers a control listener
 ---@param control tas.CONTROLS
----@param callback tas.KeyListenerCallback
-function tas.registerKeyListener(keyName, callback)
-	local listeners = tas.keyListeners[keyName]
-	if not listeners then
-		listeners = {}
-		tas.keyListeners[keyName] = listeners
-	end
-
+---@param callback tas.ControlListenerCallback
+function tas.addControlListener(control, callback)
+	local listeners = controlListeners[keyName]
 	listeners[callback] = true
 end
 
---- Unregisters a key listener for a control.
+--- Unregisters a control listener.
 ---@param control tas.CONTROLS
----@param callback tas.KeyListenerCallback
-function tas.unregisterKeyListener(keyName, callback)
-	local listeners = tas.keyListeners[keyName]
-	if listeners then
-		listeners[callback] = nil
-	end
+---@param callback tas.ControlListenerCallback
+function tas.removeControlListener(control, callback)
+	local listeners = controlListeners[keyName]
+	listeners[callback] = nil
 end
