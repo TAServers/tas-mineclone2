@@ -2,28 +2,21 @@
 local mineVein = tas.require("vein")
 tas.require("commands")
 
---- Table containing all allowed tools to be used for vein-mining.
 local allowedTools = {
 	"mcl_tools:.",
 }
 
-local function on_ore_digged(old_on_dig, pos, oreNode, digger)
+local function onDig(oldOnDig, pos, oreNode, digger)
 	if not digger then
 		return
 	end
 
-	if old_on_dig then
-		local diggerMeta = digger:get_meta()
-		if not diggerMeta then
-			-- Implictly means that Veinminer is disabled since this user has never toggled it.
-			return old_on_dig(pos, oreNode, digger)
-		end
-
-		local veinminer_enabled = digger:get_meta():get_int("veinminer_enabled")
-			== 1
+	if oldOnDig then
+		local veinminer_enabled = digger:get_meta()
+			and digger:get_meta():get_int("veinminer_enabled") == 1
 
 		if not veinminer_enabled then
-			return old_on_dig(pos, oreNode, digger)
+			return oldOnDig(pos, oreNode, digger)
 		end
 	end
 
@@ -33,12 +26,12 @@ local function on_ore_digged(old_on_dig, pos, oreNode, digger)
 		return
 	end
 
-	local itemDrops, newToolWear = mineVein(pos, oreNode.name, tool)
 	local playerInventory = digger:get_inventory()
-
 	if not playerInventory then
 		return
 	end
+
+	local itemDrops, newToolWear = mineVein(pos, oreNode.name, tool)
 
 	tas.array.forEach(itemDrops, function(itemDrop)
 		minetest.add_item(pos, itemDrop)
@@ -50,10 +43,6 @@ end
 
 minetest.register_on_mods_loaded(function()
 	for nodeName, nodeDefinition in pairs(minetest.registered_nodes) do
-		mc2patch.patchDefinitionCallback(
-			nodeDefinition,
-			"on_dig",
-			on_ore_digged
-		)
+		mc2patch.patchDefinitionCallback(nodeDefinition, "on_dig", onDig)
 	end
 end)
