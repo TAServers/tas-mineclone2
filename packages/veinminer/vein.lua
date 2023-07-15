@@ -60,7 +60,7 @@ local function mineVein(pos, nodeType, tool)
 	local itemDrops = {}
 	local totalBlocks = 0
 	local digSimulation = minetest.get_dig_params(
-		minetest.registered_nodes[nodeType] or {},
+		minetest.registered_nodes[nodeType].groups or {},
 		tool:get_tool_capabilities(),
 		0 -- Zero reference wear as we need to multiply for the number of blocks below
 	)
@@ -70,7 +70,7 @@ local function mineVein(pos, nodeType, tool)
 		nodeType,
 		veinminerSettings:getMaxNodes(),
 		function(foundNodePos)
-			minetest.remove_node(currentPosition)
+			minetest.remove_node(foundNodePos)
 
 			local droppedItems =
 				minetest.get_node_drops(nodeType, tool:get_name() or "")
