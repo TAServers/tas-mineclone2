@@ -29,7 +29,7 @@ local function saveControlsForPlayer(player)
 	return oldControls, playerControls
 end
 
-local function callKeyListeners(oldControls, newControls)
+local function callKeyListeners(player, oldControls, newControls)
 	local changedKeys = bit.bxor(newControls, oldControls)
 
 	for controlName, controlBitIndex in pairs(tas.CONTROLS) do
@@ -41,7 +41,7 @@ local function callKeyListeners(oldControls, newControls)
 			local listeners = tas.keyListeners[controlBitIndex]
 			if listeners then
 				for callback in pairs(listeners) do
-					callback(pressed)
+					callback(player, pressed)
 				end
 			end
 		end
@@ -51,7 +51,7 @@ end
 minetest.register_globalstep(function()
 	for _, player in ipairs(minetest.get_connected_players()) do
 		local oldControls, newControls = saveControlsForPlayer(player)
-		callKeyListeners(oldControls, newControls)
+		callKeyListeners(player, oldControls, newControls)
 	end
 end)
 
