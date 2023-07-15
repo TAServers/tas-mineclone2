@@ -1,87 +1,84 @@
 ---@module 'veinminer.repositories.settings'
 local veinminerSettings = tas.require("repositories/settings")
 
---- Table containing all possible offsets for neighboring nodes.
-local neighborOffsets = {}
-do
-	local axisValues = { -1, 0, 1 }
+local deltaX = { 1, 0, 0, -1, 0, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, -1, 0 }
+local deltaY = { 0, 1, 0, 0, -1, 0, 1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1 }
+local deltaZ = { 0, 0, 1, 0, 0, -1, 0, 1, 1, 0, 1, 1, 0, -1, -1, 0, -1, -1 }
 
-	for _, x in ipairs(axisValues) do
-		for _, y in ipairs(axisValues) do
-			for _, z in ipairs(axisValues) do
-				if x ~= 0 or y ~= 0 or z ~= 0 then
-					table.insert(neighborOffsets, vector.new(x, y, z))
-				end
-			end
-		end
-	end
+local neighbourOffsets = {}
+for i = 1, #deltaX do
+	neighbourOffsets[i] = vector.new(deltaX[i], deltaY[i], deltaZ[i])
 end
 
-local function iterateVein(startPos, oreType, maxNodes)
+--- Iterates local vectors around the origin of a 3 dimensional array
+---@param startPos unknown
+---@param nodeName string
+---@param maxNodes integer
+---@param predicate fun(vector: unknown)
+---@return function
+local function iterateVein(startPos, nodeName, maxNodes, predicate)
 	local queue = tas.Queue.new()
 	local visitedPositions = {}
 	local totalVisitedBlocks = 0
 
-	local function addPosition(newPosition)
-		if visitedPositions[newPosition] then
+	local function visit(pos)
+		visitedPositions[pos.x] = visitedPositions[pos.x] or {}
+		visitedPositions[pos.x][pos.y] = visitedPositions[pos.x][pos.y] or {}
+
+		if visitedPositions[pos.x][pos.y][pos.z] then
 			return
 		end
 
-		queue:Enqueue(newPosition)
-		visitedPositions[newPosition] = true
-	end
-
-	addPosition(startPos)
-
-	return function()
-		if queue:Size() <= 0 or totalVisitedBlocks >= maxNodes then
-			return nil
-		end
-
-		local currentPosition = queue:Dequeue()
-
-		for _, offset in ipairs(neighborOffsets) do
-			local neighborPosition = vector.add(currentPosition, offset)
-			local neighborNode = minetest.get_node(neighborPosition)
-
-			if neighborNode.name == oreType then
-				addPosition(neighborPosition)
-			end
-		end
+		visitedPositions[pos.x][pos.y][pos.z] = true
 
 		totalVisitedBlocks = totalVisitedBlocks + 1
-		return currentPosition
+		queue:Enqueue(pos)
+		predicate(pos)
+	end
+
+	visit(startPos)
+
+	while queue:Size() > 0 do
+		local pos = queue:Dequeue()
+
+		for _, offset in ipairs(neighbourOffsets) do
+			if totalVisitedBlocks >= maxNodes then
+				return
+			end
+
+			local neighbourPos = vector.add(pos, offset)
+			local neighbourNode = minetest.get_node(neighbourPos)
+
+			if neighbourNode.name == nodeName then
+				visit(neighbourPos)
+			end
+		end
 	end
 end
 
-local function mineVein(pos, oreType, tool)
+local function mineVein(pos, nodeType, tool)
 	local itemDrops = {}
 	local totalBlocks = 0
-	local digSimulation
-	do
-		-- This node is used to simulate digging the vein, it'll return the same values for all the other nodes.
-		local currentNodeDefinition =
-			minetest.registered_nodes[minetest.get_node(pos).name]
+	local digSimulation = minetest.get_dig_params(
+		minetest.registered_nodes[nodeType] or {},
+		tool:get_tool_capabilities(),
+		0 -- Zero reference wear as we need to multiply for the number of blocks below
+	)
 
-		-- We specify zero for the reference wear since we're going to calculate the new wear ourselves.
-		digSimulation = minetest.get_dig_params(
-			currentNodeDefinition.groups or {},
-			tool:get_tool_capabilities(),
-			0
-		)
-	end
+	iterateVein(
+		pos,
+		nodeType,
+		veinminerSettings:getMaxNodes(),
+		function(foundNodePos)
+			minetest.remove_node(currentPosition)
 
-	for currentPosition in
-		iterateVein(pos, oreType, veinminerSettings:getMaxNodes())
-	do
-		minetest.remove_node(currentPosition)
+			local droppedItems =
+				minetest.get_node_drops(nodeType, tool:get_name() or "")
+			tas.array.append(itemDrops, droppedItems)
 
-		local droppedItems =
-			minetest.get_node_drops(oreType, tool:get_name() or "")
-		tas.array.append(itemDrops, droppedItems)
-
-		totalBlocks = totalBlocks + 1
-	end
+			totalBlocks = totalBlocks + 1
+		end
+	)
 
 	return itemDrops, tool:get_wear() + digSimulation.wear * totalBlocks
 end
