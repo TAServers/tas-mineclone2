@@ -1,9 +1,9 @@
 ---@module 'veinminer.repositories.settings'
 local veinminerSettings = tas.require("repositories/settings")
 
-local deltaX = { 1, 0, 0, -1, 0, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, -1, 0 }
-local deltaY = { 0, 1, 0, 0, -1, 0, 1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1 }
-local deltaZ = { 0, 0, 1, 0, 0, -1, 0, 1, 1, 0, 1, 1, 0, -1, -1, 0, -1, -1 }
+local deltaX = { 1, 0, 0, -1, 0, 0, 1, 1, 0, -1, -1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 1, 1, -1, -1, 1, -1 }
+local deltaY = { 0, 1, 0, 0, -1, 0, 1, 0, 1, 1, 0, -1, -1, 0, 1, -1, 0, -1, 1, 1, -1, 1, -1, 1, -1, -1 }
+local deltaZ = { 0, 0, 1, 0, 0, -1, 0, 1, 1, 0, 1, 1, 0, -1, -1, 0, -1, -1, 1, 1, 1, -1, 1, -1, -1, -1 }
 
 local neighbourOffsets = {}
 for i = 1, #deltaX do
