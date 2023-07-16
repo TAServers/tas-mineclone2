@@ -33,8 +33,7 @@ local function getControlChanges(playerName, newControls)
 	return bit.bxor(newControls, oldControls)
 end
 
-local function callControlListeners(player)
-	local newControls = player:get_player_control_bits()
+local function callControlListeners(player, newControls)
 	local changedControls = getControlChanges(player:get_player_name(), newControls)
 
 	for controlName, controlBitIndex in pairs(tas.CONTROLS) do
@@ -52,10 +51,13 @@ local function callControlListeners(player)
 end
 
 minetest.register_globalstep(function()
-	tas.array.forEach(minetest.get_connected_players(), callControlListeners)
+	tas.array.forEach(minetest.get_connected_players(), function(player)
+		callControlListeners(player, player:get_player_control_bits())
+	end)
 end)
 
 minetest.register_on_leaveplayer(function(player)
+	callControlListeners(player, 0)
 	oldPlayerControls[player:get_player_name()] = nil
 end)
 
@@ -72,3 +74,7 @@ end
 function tas.removeControlListener(control, callback)
 	controlListeners[control][callback] = nil
 end
+
+tas.addControlListener(tas.CONTROLS.UP, function(player, pressed)
+	minetest.debug(player, pressed)
+end)
