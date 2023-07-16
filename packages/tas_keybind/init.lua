@@ -74,7 +74,3 @@ end
 function tas.removeControlListener(control, callback)
 	controlListeners[control][callback] = nil
 end
-
-tas.addControlListener(tas.CONTROLS.UP, function(player, pressed)
-	minetest.debug(player, pressed)
-end)
