@@ -1,4 +1,4 @@
-tas = {}
+tas = tas or {}
 tas._includeCache = {}
 
 --- Simulates Lua's `require` given a file path separated by forward slashes. All paths are relative to the mod directory.
