@@ -26,7 +26,8 @@ for _, control in pairs(tas.CONTROLS) do
 	controlListeners[control] = {}
 end
 
-local function getControlChanges(playerName, newControls)
+local function getControlChanges(player, newControls)
+	local playerName = player:get_player_name()
 	local oldControls = oldPlayerControls[playerName] or 0
 	oldPlayerControls[playerName] = newControls
 
@@ -34,7 +35,7 @@ local function getControlChanges(playerName, newControls)
 end
 
 local function callControlListeners(player, newControls)
-	local changedControls = getControlChanges(player:get_player_name(), newControls)
+	local changedControls = getControlChanges(player, newControls)
 
 	for controlName, controlBitIndex in pairs(tas.CONTROLS) do
 		local controlBitmask = bit.lshift(1, controlBitIndex)
