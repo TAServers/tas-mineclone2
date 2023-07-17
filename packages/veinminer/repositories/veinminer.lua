@@ -1,12 +1,24 @@
----@module 'veinminer.repositories.veinminer.active'
-local active = tas.require("repositories/veinminer/active")
+local allowedTools = {
+	"mcl_tools:.",
+}
 
----@module 'veinminer.repositories.veinminer.enabled'
-local enabled = tas.require("repositories/veinminer/enabled")
+local function isVeinminerActive(player)
+	local tool = player:get_wielded_item()
+	if not tool then
+		return false
+	end
+
+	if not tas.validateNodeType(tool:get_name(), allowedTools) then
+		return false
+	end
+
+	if not mcl_enchanting.get_enchantments(tool).veinmining then
+		return false
+	end
+
+	return true
+end
 
 return {
-	isActive = active.isVeinminerActive,
-	isEnabled = enabled.isVeinminerEnabled,
-	registerOnActiveChanged = active.registerOnActiveChanged,
-	setVeinminerEnabled = enabled.setVeinminerEnabled,
+	isActive = isVeinminerActive,
 }

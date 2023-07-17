@@ -4,7 +4,6 @@ local veinminer = tas.require("repositories/veinminer")
 ---@module 'veinminer.vein'
 local mineVein = tas.require("vein")
 
-tas.require("hud")
 tas.require("commands")
 
 local function onDig(oldOnDig, pos, oreNode, digger)
@@ -54,9 +53,7 @@ minetest.register_on_mods_loaded(function()
 		weight = 7,
 		description = "Blocks are mined repeatedly with the same tool in a single action.",
 		curse = false,
-		on_enchant = function()
-			minetest.debug("Hi!")
-		end,
+		on_enchant = function() end,
 		requires_tool = true,
 		treasure = false,
 		power_range_table = { { 5, 61 }, { 13, 71 }, { 21, 81 } },
