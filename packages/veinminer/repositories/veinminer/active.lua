@@ -14,7 +14,7 @@ local function invokeActiveChangedListeners(player, active)
 end
 
 local function isVeinminerActive(player)
-	return playersUsingControl[player:get_player_name()] or false and veinminerEnabled.isVeinminerEnabled(player)
+	return (playersUsingControl[player:get_player_name()] or false) and veinminerEnabled.isVeinminerEnabled(player)
 end
 
 local function onControl(player, pressed)

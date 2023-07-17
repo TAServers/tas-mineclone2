@@ -13,7 +13,6 @@ minetest.register_chatcommand("veinminer", {
 			return
 		end
 
-		minetest.debug(dump(veinminer))
 		veinminer.setVeinminerEnabled(player, not veinminer.isEnabled(player))
 	end,
 })
