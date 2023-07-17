@@ -12,8 +12,7 @@ local function onDig(oldOnDig, pos, oreNode, digger)
 	end
 
 	if oldOnDig then
-		local veinminer_enabled = digger:get_meta()
-			and digger:get_meta():get_int("veinminer_enabled") == 1
+		local veinminer_enabled = digger:get_meta() and digger:get_meta():get_int("veinminer_enabled") == 1
 
 		if not veinminer_enabled then
 			return oldOnDig(pos, oreNode, digger)
@@ -33,9 +32,11 @@ local function onDig(oldOnDig, pos, oreNode, digger)
 
 	local itemDrops, newToolWear = mineVein(pos, oreNode.name, tool)
 
-	tas.array.forEach(itemDrops, function(itemDrop)
-		minetest.add_item(pos, itemDrop)
-	end)
+	if not minetest.is_creative_enabled(digger:get_player_name()) then
+		tas.array.forEach(itemDrops, function(itemDrop)
+			minetest.add_item(pos, itemDrop)
+		end)
+	end
 
 	tool:set_wear(newToolWear)
 	playerInventory:set_stack("main", toolIndex, tool)
