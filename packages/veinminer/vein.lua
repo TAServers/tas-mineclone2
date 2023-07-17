@@ -14,7 +14,7 @@ end
 ---@param startPos unknown
 ---@param nodeName string
 ---@param maxNodes integer
----@param predicate fun(vector: unknown)
+---@param predicate fun(vector: unknown):boolean Predicate which is called for each node. Return false to stop iteration.
 local function iterateVein(startPos, nodeName, maxNodes, predicate)
 	local queue = tas.Queue.new()
 	local visitedPositions = {}
@@ -30,7 +30,7 @@ local function iterateVein(startPos, nodeName, maxNodes, predicate)
 
 		totalVisitedBlocks = totalVisitedBlocks + 1
 		queue:Enqueue(pos)
-		predicate(pos)
+		return predicate(pos)
 	end
 
 	visit(startPos)
@@ -40,19 +40,17 @@ local function iterateVein(startPos, nodeName, maxNodes, predicate)
 
 		for _, offset in ipairs(neighbourOffsets) do
 			if totalVisitedBlocks >= maxNodes then
-				return totalVisitedBlocks
+				return
 			end
 
 			local neighbourPos = vector.add(pos, offset)
 			local neighbourNode = minetest.get_node(neighbourPos)
 
-			if neighbourNode.name == nodeName then
-				visit(neighbourPos)
+			if neighbourNode.name == nodeName and not visit(neighbourPos) then
+				return
 			end
 		end
 	end
-
-	return totalVisitedBlocks
 end
 
 local function mineVein(pos, nodeType, tool)
@@ -62,15 +60,23 @@ local function mineVein(pos, nodeType, tool)
 		tool:get_tool_capabilities(),
 		0 -- Zero reference wear as we need to multiply for the number of blocks below
 	)
+	local currentWear = tool:get_wear()
 
-	local totalBlocks = iterateVein(pos, nodeType, veinminerSettings:getMaxNodes(), function(foundNodePos)
+	iterateVein(pos, nodeType, veinminerSettings:getMaxNodes(), function(foundNodePos)
+		currentWear = currentWear + digSimulation.wear
+		if currentWear >= 65535 then
+			return false
+		end
+
 		minetest.remove_node(foundNodePos)
 
 		local droppedItems = minetest.get_node_drops(nodeType, tool:get_name() or "")
 		tas.array.append(itemDrops, droppedItems)
+
+		return true
 	end)
 
-	return itemDrops, tool:get_wear() + digSimulation.wear * totalBlocks
+	return itemDrops, currentWear
 end
 
 return mineVein
