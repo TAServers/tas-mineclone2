@@ -54,7 +54,6 @@ minetest.register_on_leaveplayer(function(player)
 end)
 
 veinminer.registerOnActiveChanged(function(player, active)
-	minetest.debug("veinminer: active changed: " .. tostring(active))
 	local hud = huds[player:get_player_name()]
 	if hud then
 		hud:Update(active)
