@@ -6,7 +6,7 @@ local veinminer = tas.require("repositories/veinminer")
 local VeinminerHUD = {}
 VeinminerHUD.__index = VeinminerHUD
 
-local ICON_SCALE = 0.4
+local ICON_SCALE = 0.47
 
 function VeinminerHUD.new(player)
 	local hud = {
@@ -17,9 +17,14 @@ function VeinminerHUD.new(player)
 	hud._hudIndex = player:hud_add({
 		hud_elem_type = "image",
 		scale = { x = ICON_SCALE, y = ICON_SCALE },
+		-- MineClone2 uses constant pixel offsets instead of screen-relative positions.
 		position = {
-			x = 0.493,
-			y = 0.85,
+			x = 0.5,
+			y = 0,
+		},
+		offset = {
+			x = 500,
+			y = 300,
 		},
 		alignment = {
 			x = 0.5,

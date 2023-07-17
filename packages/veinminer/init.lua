@@ -7,10 +7,6 @@ local mineVein = tas.require("vein")
 tas.require("hud")
 tas.require("commands")
 
-local allowedTools = {
-	"mcl_tools:.",
-}
-
 local function onDig(oldOnDig, pos, oreNode, digger)
 	if not digger then
 		return
@@ -22,7 +18,7 @@ local function onDig(oldOnDig, pos, oreNode, digger)
 
 	local tool = digger:get_wielded_item()
 	local toolIndex = digger:get_wield_index()
-	if not tool or not tas.validateNodeType(tool:get_name(), allowedTools) then
+	if not tool then
 		return
 	end
 

@@ -1,6 +1,10 @@
 ---@module 'veinminer.repositories.veinminer.enabled'
+local veinminerControl = tas.CONTROLS.SNEAK
+local allowedTools = {
+	"mcl_tools:.",
+}
+
 local veinminerEnabled = tas.require("repositories/veinminer/enabled")
-local CONTROL = tas.CONTROLS.SNEAK
 local playersUsingControl = {}
 
 ---@alias veinminer.OnActiveChanged fun(player: unknown, active: boolean)
@@ -14,6 +18,15 @@ local function invokeActiveChangedListeners(player, active)
 end
 
 local function isVeinminerActive(player)
+	local tool = player:get_wielded_item()
+	if not tool then
+		return false
+	end
+
+	if not tas.validateNodeType(tool:get_name(), allowedTools) then
+		return false
+	end
+
 	return (playersUsingControl[player:get_player_name()] or false) and veinminerEnabled.isVeinminerEnabled(player)
 end
 
@@ -28,7 +41,7 @@ local function registerOnActiveChanged(callback)
 	activeChangedListeners[callback] = true
 end
 
-tas.addControlListener(CONTROL, onControl)
+tas.addControlListener(veinminerControl, onControl)
 
 return {
 	isVeinminerActive = isVeinminerActive,
