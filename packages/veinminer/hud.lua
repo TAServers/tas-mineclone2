@@ -1,7 +1,12 @@
+---@module 'veinminer.repositories.veinminer'
+local veinminer = tas.require("repositories/veinminer")
+
 ---@class VeinminerHUD
 --- Per-player instance which handles the player's HUD for Veinminer
 local VeinminerHUD = {}
 VeinminerHUD.__index = VeinminerHUD
+
+local ICON_SCALE = 0.4
 
 function VeinminerHUD.new(player)
 	local hud = {
@@ -10,43 +15,30 @@ function VeinminerHUD.new(player)
 	}
 
 	hud._hudIndex = player:hud_add({
-		hud_elem_type = "text",
+		hud_elem_type = "image",
+		scale = { x = ICON_SCALE, y = ICON_SCALE },
 		position = {
-			x = 0.95,
-			y = 0.05,
-		},
-		offset = {
-			x = 0,
-			y = 0,
+			x = 0.493,
+			y = 0.85,
 		},
 		alignment = {
-			x = -1,
-			y = -1,
+			x = 0.5,
+			y = 0.5,
 		},
-		scale = {
-			x = 100,
-			y = 100,
-		},
-		text = "",
-		style = 1,
+		text = "veinminer_on.png",
 	})
 
 	hud = setmetatable(hud, VeinminerHUD)
-	hud:UpdateText()
+	hud:Update()
 
 	return hud
 end
 
-function VeinminerHUD:UpdateText()
-	local meta = self._player:get_meta()
-	local veinminerEnabled = meta:get_int("veinminer_enabled") == 1
-
-	if veinminerEnabled then
-		self._player:hud_change(self._hudIndex, "text", "Veinminer: Enabled")
-		self._player:hud_change(self._hudIndex, "number", 0x00FF00)
+function VeinminerHUD:Update(active)
+	if active then
+		self._player:hud_change(self._hudIndex, "scale", { x = ICON_SCALE, y = ICON_SCALE })
 	else
-		self._player:hud_change(self._hudIndex, "text", "Veinminer: Disabled")
-		self._player:hud_change(self._hudIndex, "number", 0xFF0000)
+		self._player:hud_change(self._hudIndex, "scale", { x = 0, y = 0 })
 	end
 end
 
@@ -61,13 +53,9 @@ minetest.register_on_leaveplayer(function(player)
 	huds[player:get_player_name()] = nil
 end)
 
---- Retrieves the HUD for the given player.
----@param player any
----@return VeinminerHUD
-local function getHUD(player)
-	return huds[player:get_player_name()]
-end
-
-return {
-	getHUD = getHUD,
-}
+veinminer.registerOnActiveChanged(function(player, active)
+	local hud = huds[player:get_player_name()]
+	if hud then
+		hud:Update(active)
+	end
+end)

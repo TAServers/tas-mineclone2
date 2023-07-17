@@ -1,16 +1,7 @@
----@module 'veinminer.hud'
-local huds = tas.require("hud")
 ---@module 'veinminer.repositories.settings'
 local veinminerSettings = tas.require("repositories/settings")
-
-local function on_veinminer_enabled_changed(player)
-	local hud = huds.getHUD(player)
-	if not hud then
-		return
-	end
-
-	hud:UpdateText()
-end
+---@module 'veinminer.repositories.veinminer'
+local veinminer = tas.require("repositories/veinminer")
 
 minetest.register_chatcommand("veinminer", {
 	params = "",
@@ -22,10 +13,7 @@ minetest.register_chatcommand("veinminer", {
 			return
 		end
 
-		local meta = player:get_meta()
-		local veinminerEnabled = meta:get_int("veinminer_enabled") == 1
-		meta:set_int("veinminer_enabled", veinminerEnabled and 0 or 1)
-		on_veinminer_enabled_changed(player)
+		veinminer.setVeinminerEnabled(player, not veinminer.isEnabled(player))
 	end,
 })
 

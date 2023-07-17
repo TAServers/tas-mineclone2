@@ -1,3 +1,6 @@
+---@module 'veinminer.repositories.veinminer'
+local veinminer = tas.require("repositories/veinminer")
+
 ---@module 'veinminer.vein'
 local mineVein = tas.require("vein")
 tas.require("commands")
@@ -5,22 +8,14 @@ tas.require("commands")
 local allowedTools = {
 	"mcl_tools:.",
 }
-local veinminingPlayers = {}
 
 local function onDig(oldOnDig, pos, oreNode, digger)
 	if not digger then
 		return
 	end
 
-	if oldOnDig then
-		local veinmining = veinminingPlayers[digger:get_player_name()] or false
-		local veinminer_enabled = digger:get_meta()
-			and digger:get_meta():get_int("veinminer_enabled") == 1
-			and veinmining
-
-		if not veinminer_enabled then
-			return oldOnDig(pos, oreNode, digger)
-		end
+	if oldOnDig and not veinminer.isActive(digger) then
+		return oldOnDig(pos, oreNode, digger)
 	end
 
 	local tool = digger:get_wielded_item()
@@ -50,12 +45,4 @@ minetest.register_on_mods_loaded(function()
 	for nodeName, nodeDefinition in pairs(minetest.registered_nodes) do
 		mc2patch.patchDefinitionCallback(nodeDefinition, "on_dig", onDig)
 	end
-end)
-
-tas.addControlListener(tas.CONTROLS.SNEAK, function(player, pressed)
-	veinminingPlayers[player:get_player_name()] = pressed
-end)
-
-minetest.register_on_leaveplayer(function(player)
-	veinminingPlayers[player:get_player_name()] = nil
 end)
