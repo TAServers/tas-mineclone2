@@ -16,6 +16,8 @@ Issue: https://github.com/minetest/minetest/issues/11240#issuecomment-1636181699
     -   This is a mod that replaces the currently held item stack with another equivalent one when you use it all up.
 -   `packages/tas_utils`
     -   This is a utility mod that adds useful functions and libraries for mod development.
+-   `packages/tas_keybind`
+    -   This is a utility mod that adds a keybind system for other mods.
 -   `packages/veinminer`
     -   See README.md in the package for more information.
 
