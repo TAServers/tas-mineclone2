@@ -43,4 +43,24 @@ minetest.register_on_mods_loaded(function()
 	for nodeName, nodeDefinition in pairs(minetest.registered_nodes) do
 		mc2patch.patchDefinitionCallback(nodeDefinition, "on_dig", onDig)
 	end
+
+	mc2patch.addEnchantment("veinmining", {
+		name = "Veinmining",
+		max_level = 3,
+		primary = { pickaxe = true, shovel = true, axe = true, hoe = true },
+		secondary = { shears = true },
+		disallow = {},
+		incompatible = { fortune = true },
+		weight = 7,
+		description = "Blocks are mined repeatedly with the same tool in a single action.",
+		curse = false,
+		on_enchant = function()
+			minetest.debug("Hi!")
+		end,
+		requires_tool = true,
+		treasure = false,
+		power_range_table = { { 5, 61 }, { 13, 71 }, { 21, 81 } },
+		inv_combat_tab = false,
+		inv_tool_tab = true,
+	})
 end)

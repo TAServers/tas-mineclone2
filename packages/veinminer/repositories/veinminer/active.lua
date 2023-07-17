@@ -27,6 +27,10 @@ local function isVeinminerActive(player)
 		return false
 	end
 
+	if not mcl_enchanting.get_enchantments(tool).veinmining then
+		return false
+	end
+
 	return (playersUsingControl[player:get_player_name()] or false) and veinminerEnabled.isVeinminerEnabled(player)
 end
 

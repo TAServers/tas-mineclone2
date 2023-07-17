@@ -62,19 +62,25 @@ local function mineVein(pos, nodeType, tool)
 	)
 	local currentWear = tool:get_wear()
 
-	iterateVein(pos, nodeType, veinminerSettings:getMaxNodes(), function(foundNodePos)
-		currentWear = currentWear + digSimulation.wear
-		if currentWear >= 65535 then
-			return false
+	local veinminingEnchantmentLevel = mcl_enchanting.get_enchantments(tool).veinmining
+	iterateVein(
+		pos,
+		nodeType,
+		veinminerSettings:getMaxNodes() * (veinminingEnchantmentLevel / 3),
+		function(foundNodePos)
+			currentWear = currentWear + digSimulation.wear
+			if currentWear >= 65535 then
+				return false
+			end
+
+			minetest.remove_node(foundNodePos)
+
+			local droppedItems = minetest.get_node_drops(nodeType, tool:get_name() or "")
+			tas.array.append(itemDrops, droppedItems)
+
+			return true
 		end
-
-		minetest.remove_node(foundNodePos)
-
-		local droppedItems = minetest.get_node_drops(nodeType, tool:get_name() or "")
-		tas.array.append(itemDrops, droppedItems)
-
-		return true
-	end)
+	)
 
 	return itemDrops, currentWear
 end
