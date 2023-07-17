@@ -22,10 +22,10 @@ function tas.require(name)
 		return tas._includeCache[path]
 	end
 
-	local result = { dofile(path) }
+	local result = dofile(path)
 	tas._includeCache[path] = result
 
-	return unpack(result)
+	return result
 end
 
 --- Checks if a node type is valid given an array of type patterns. These can be simple explicit types or lua patterns.

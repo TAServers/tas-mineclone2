@@ -3,6 +3,8 @@ local veinminer = tas.require("repositories/veinminer")
 
 ---@module 'veinminer.vein'
 local mineVein = tas.require("vein")
+
+tas.require("hud")
 tas.require("commands")
 
 local allowedTools = {
