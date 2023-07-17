@@ -20,15 +20,15 @@ function VeinminerHUD.new(player)
 		-- MineClone2 uses constant pixel offsets instead of screen-relative positions.
 		position = {
 			x = 0.5,
-			y = 0,
+			y = 0.5,
 		},
 		offset = {
-			x = 500,
-			y = 300,
+			x = 60,
+			y = 0,
 		},
 		alignment = {
 			x = 0.5,
-			y = 0.5,
+			y = 0,
 		},
 		text = "veinminer_on.png",
 	})
