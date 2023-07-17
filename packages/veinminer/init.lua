@@ -40,10 +40,10 @@ local function onDig(oldOnDig, pos, oreNode, digger)
 		tas.array.forEach(itemDrops, function(itemDrop)
 			minetest.add_item(pos, itemDrop)
 		end)
-	end
 
-	tool:set_wear(newToolWear)
-	playerInventory:set_stack("main", toolIndex, tool)
+		tool:set_wear(newToolWear)
+		playerInventory:set_stack("main", toolIndex, tool)
+	end
 end
 
 minetest.register_on_mods_loaded(function()
